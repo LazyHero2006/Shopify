@@ -1,0 +1,203 @@
+{% schema %}
+{
+  "name": "Ultra Clean Product Cards",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow / Section label", "default": "Featured" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Frontline Picks" },
+    { "type": "range", "id": "max_width", "label": "Max content width (px)", "min": 900, "max": 1400, "step": 50, "default": 1200 }
+  ],
+  "blocks": [
+  {
+    "type": "card",
+    "name": "Card",
+    "settings": [
+      { "type": "text", "id": "kicker", "label": "Kicker (small label)", "default": "Category" },
+      { "type": "text", "id": "title", "label": "Title", "default": "Fighter | i3-12100F | RTX 3050" },
+      { "type": "textarea", "id": "subtitle", "label": "One-line specs", "default": "16GB • 1TB NVMe • Wi-Fi 6" },
+      { "type": "image_picker", "id": "image", "label": "Image" },
+      { "type": "url", "id": "learn_url", "label": "Learn more link", "default": "/" },
+      { "type": "url", "id": "buy_url", "label": "Buy now link", "default": "/" }
+    ]
+  }
+],
+
+  "max_blocks": 12,
+  "presets": [{ "name": "Ultra Clean Product Cards" }]
+}
+{% endschema %}
+
+<section class="ux-wrap">
+  {% if section.settings.eyebrow != blank or section.settings.headline != blank %}
+  <header class="ux-head">
+    {% if section.settings.eyebrow != blank %}<p class="ux-eyebrow">{{ section.settings.eyebrow }}</p>{% endif %}
+    {% if section.settings.headline != blank %}<h2 class="ux-hl">{{ section.settings.headline }}</h2>{% endif %}
+  </header>
+  {% endif %}
+
+  <div class="ux-grid">
+    {% for block in section.blocks %}
+      {% assign img = block.settings.image %}
+      <article class="ux-card" {{ block.shopify_attributes }}>
+        {% if block.settings.kicker != blank %}<p class="ux-kicker">{{ block.settings.kicker }}</p>{% endif %}
+        <h3 class="ux-title">{{ block.settings.title }}</h3>
+        {% if block.settings.subtitle != blank %}<p class="ux-sub">{{ block.settings.subtitle }}</p>{% endif %}
+
+        <div class="ux-cta">
+          {% if block.settings.learn_url != blank %}
+            <a href="{{ block.settings.learn_url }}" class="ux-link">Learn More</a>
+          {% endif %}
+          {% if block.settings.buy_url != blank %}
+            <a href="{{ block.settings.buy_url }}" class="ux-link">Buy Now</a>
+          {% endif %}
+        </div>
+
+        {% if img != blank %}
+  <a class="ux-media" href="{{ block.settings.learn_url | default: block.settings.buy_url | default: '#' }}">
+    {{-
+      img
+      | image_url: width: 1200
+      | image_tag:
+        alt: block.settings.title,
+        loading: 'lazy',
+        widths: '600,900,1200',
+        sizes: '(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw',
+        class: 'ux-img'
+    -}}
+  </a>
+{% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+/* ---------- Design tokens ---------- */
+:root {
+  --ux-bg: #ffffff;
+  --ux-ink: #0b0b0c;
+  --ux-ink-mute: #5a5a60;
+  --ux-ring: rgba(0,0,0,.06);
+  --ux-accent: #111111; /* adjust to brand */
+  --ux-radius: 18px;
+}
+
+/* ---------- Section container ---------- */
+#shopify-section-{{ section.id }} .ux-wrap{
+  background: var(--ux-bg);
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 48px) 0;
+  max-width: {{ section.settings.max_width }}px;
+}
+#shopify-section-{{ section.id }} .ux-head{
+  text-align: center;
+  margin-bottom: clamp(18px, 3vw, 36px);
+}
+#shopify-section-{{ section.id }} .ux-eyebrow{
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: .72rem;
+  color: var(--ux-ink-mute);
+  margin: 0 0 6px;
+}
+#shopify-section-{{ section.id }} .ux-hl{
+  font-size: clamp(1.6rem, 2vw + 1rem, 2.4rem);
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* ---------- Grid ---------- */
+#shopify-section-{{ section.id }} .ux-grid{
+  display: grid;
+  gap: clamp(16px, 2vw, 28px);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px){
+  #shopify-section-{{ section.id }} .ux-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1100px){
+  #shopify-section-{{ section.id }} .ux-grid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Card ---------- */
+#shopify-section-{{ section.id }} .ux-card{
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: var(--ux-radius);
+  padding: clamp(16px, 2vw, 22px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: transform .25s ease, box-shadow .25s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+#shopify-section-{{ section.id }} .ux-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+
+#shopify-section-{{ section.id }} .ux-kicker{
+  margin: 2px 0 6px;
+  font-size: .78rem;
+  letter-spacing: .06em;
+  color: var(--ux-ink-mute);
+  text-transform: uppercase;
+}
+#shopify-section-{{ section.id }} .ux-title{
+  margin: 0;
+  font-size: clamp(1.0rem, .8vw + .9rem, 1.25rem);
+  line-height: 1.25;
+}
+#shopify-section-{{ section.id }} .ux-sub{
+  margin: 6px 0 14px;
+  color: var(--ux-ink-mute);
+  font-size: .95rem;
+}
+
+/* ---------- Media (fixed aspect, image floats) ---------- */
+#shopify-section-{{ section.id }} .ux-media{
+  display: block;
+  border-radius: calc(var(--ux-radius) - 6px);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #f4f5f7;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+  margin-top: auto;
+}
+#shopify-section-{{ section.id }} .ux-media img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* swap to 'contain' if you want full product in frame */
+  transform: scale(1.01);
+  transition: transform .5s ease;
+}
+#shopify-section-{{ section.id }} .ux-card:hover .ux-media img{
+  transform: scale(1.03);
+}
+
+/* ---------- CTAs ---------- */
+#shopify-section-{{ section.id }} .ux-cta{
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin: 12px 0 20px;
+}
+#shopify-section-{{ section.id }} .ux-link{
+  position: relative;
+  font-weight: 600;
+  font-size: .95rem;
+  text-decoration: none;
+  color: var(--ux-accent);
+  padding-right: 14px;
+  transition: color .2s ease;
+}
+#shopify-section-{{ section.id }} .ux-link::after{
+  content: '\203A';
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+#shopify-section-{{ section.id }} .ux-link:hover{
+  color: var(--ux-ink-mute);
+}
+</style>
